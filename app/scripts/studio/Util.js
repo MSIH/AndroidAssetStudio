@@ -17,26 +17,45 @@
 export const Util = {
   getMultBaseMdpi(density) {
     switch (density) {
-      case 'xxxhdpi': return 4.00;
-      case  'xxhdpi': return 3.00;
-      case   'xhdpi': return 2.00;
-      case    'hdpi': return 1.50;
-      case   'tvdpi': return 1.33125;
-      case    'mdpi': return 1.00;
-      case    'ldpi': return 0.75;
+      case 'xxxhdpi':
+        return 4.00;
+      case 'xxhdpi':
+        return 3.00;
+      case 'xhdpi':
+        return 2.00;
+      case 'hdpi':
+        return 1.50;
+      case 'tvdpi':
+        return 1.33125;
+      case 'mdpi':
+        return 1.00;
+      case 'ldpi':
+        return 0.75;
+    }
+    if (density.includes('-')) {
+      let densityName = density.split('-');
+      let pixels = densityName[1];
+      return Number(pixels) / 48;
     }
     return 1.0;
   },
 
   getDpiForDensity(density) {
     switch (density) {
-      case 'xxxhdpi': return 640;
-      case  'xxhdpi': return 480;
-      case   'xhdpi': return 320;
-      case    'hdpi': return 240;
-      case   'tvdpi': return 213;
-      case    'mdpi': return 160;
-      case    'ldpi': return 120;
+      case 'xxxhdpi':
+        return 640;
+      case 'xxhdpi':
+        return 480;
+      case 'xhdpi':
+        return 320;
+      case 'hdpi':
+        return 240;
+      case 'tvdpi':
+        return 213;
+      case 'mdpi':
+        return 160;
+      case 'ldpi':
+        return 120;
     }
     return 160;
   },
@@ -66,7 +85,9 @@ export const Util = {
     let anchor = $('<a>').hide().appendTo(document.body);
     let blob = content;
     if (!(content instanceof Blob)) {
-      blob = new Blob([content], {type: 'application/octet-stream'});
+      blob = new Blob([content], {
+        type: 'application/octet-stream'
+      });
     }
     let url = window.URL.createObjectURL(blob);
     anchor.attr({
@@ -95,16 +116,16 @@ export const Util = {
     }
 
     Util.debugCtx.$lastEl = $('<img>')
-        .css({
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          zIndex: 100,
-          backgroundColor: 'rgba(255, 0, 0, 0.5)',
-          pointerEvents: 'none',
-        })
-        .attr('src', ctx.canvas.toDataURL())
-        .appendTo(document.body);
+      .css({
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        zIndex: 100,
+        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+        pointerEvents: 'none',
+      })
+      .attr('src', ctx.canvas.toDataURL())
+      .appendTo(document.body);
   },
 
   debounce(delay, fn) {

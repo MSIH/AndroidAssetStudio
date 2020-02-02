@@ -107,7 +107,33 @@ const NO_SHAPE_EFFECT_OPTIONS = [{
 
 export class LauncherIconGenerator extends BaseGenerator {
   get densities() {
-    return new Set(['xxxhdpi' /* must be first */ , 'web', 'xxhdpi', 'xhdpi', 'hdpi', 'mdpi']);
+    return new Set(['xxxhdpi' /* must be first */ , 'web', 'xxhdpi', 'xhdpi', 'hdpi', 'mdpi', 'FacebookProfile-200',
+      'TwitterProfile-400',
+      'LinkedInProfile-400',
+      'InstagramProfile-110',
+      'PinterestProfile-165',
+      'Favicons-16',
+      'Favicons-32',
+      'Favicons-48',
+      'iPhone-180',
+      'iPad-152',
+      'Android-192',
+      'windows-62'
+    ]);
+    /*
+'FacebookProfile-200',
+'TwitterProfile-400',
+'LinkedInProfile-400',
+'InstagramProfile-110',
+'PinterestProfile-165',
+'Favicons-16',
+'Favicons-32',
+'Favicons-48',
+'iPhone-180',
+'iPad-152',
+'Android-192',
+'windows-62'
+    */
   }
 
   get gridOverlaySvg() {
@@ -218,41 +244,6 @@ export class LauncherIconGenerator extends BaseGenerator {
             effectsField.setOptions(newEffectsOptions);
           }
         }),
-        new studio.EnumField('backgroundShape', {
-          title: 'Shape',
-          options: [{
-              id: 'none',
-              title: 'None'
-            },
-            {
-              id: 'square',
-              title: 'Square'
-            },
-            {
-              id: 'circle',
-              title: 'Circle'
-            },
-            {
-              id: 'vrect',
-              title: 'Tall rect'
-            },
-            {
-              id: 'hrect',
-              title: 'Wide rect'
-            }
-          ],
-          defaultValue: 'square',
-          onChange: newValue => {
-            backColorField.setEnabled(newValue != 'none');
-            let newEffectsOptions = newValue == 'none' ?
-              NO_SHAPE_EFFECT_OPTIONS :
-              DEFAULT_EFFECT_OPTIONS;
-            if (!newEffectsOptions.find(e => e.id == effectsField.getValue())) {
-              effectsField.setValue(newEffectsOptions[0].id);
-            }
-            effectsField.setOptions(newEffectsOptions);
-          }
-        }),
         (effectsField = new studio.EnumField('effects', {
           title: 'Effect',
           buttons: true,
@@ -277,13 +268,15 @@ export class LauncherIconGenerator extends BaseGenerator {
 
 
     this.zipper.clear();
-    this.zipper.setZipFilename(`${name}-font-${font}-fontColor-${values.foreColor}-backgroundColor-${values.backColor}.zip`);
+    let fileName = (`${name}-font-${font}-fontColor-${values.foreColor}-backgroundColor-${values.backColor}`);
+    console.log("fileName: " + fileName);
+    this.zipper.setZipFilename(`${fileName}.zip`);
 
     let xxxhdpiCtx = null;
 
     this.densities.forEach(density => {
       let ctx;
-      if (density == 'xxxhdpi' || density == 'web') {
+      if (density == 'xxxhdpi' || density == 'web' || density.includes('-')) {
         ctx = this.regenerateRawAtDensity_(density);
         if (density == 'xxxhdpi') {
           xxxhdpiCtx = ctx;
@@ -299,9 +292,17 @@ export class LauncherIconGenerator extends BaseGenerator {
           0, 0, iconSize.w, iconSize.h);
       }
 
+      let iconFileName = "";
+      if (density == 'web') {
+        iconFileName = 'web_hi_res_512.png';
+      } else if (density.includes('-')) {
+        iconFileName = `res/mipmap-${density}px/${density}px-${fileName}.png`;
+      } else {
+        iconFileName = `res/mipmap-${density}/${density}-${fileName}.png`;
+      }
+      console.log("name: " + iconFileName)
       this.zipper.add({
-        name: (density == 'web') ?
-          'web_hi_res_512.png' : `res/mipmap-${density}/${values.name}.png`,
+        name: iconFileName,
         canvas: ctx.canvas
       });
 

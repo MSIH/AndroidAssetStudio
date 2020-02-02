@@ -14,22 +14,56 @@
  * limitations under the License.
  */
 
-import {studio} from '../studio';
-import {imagelib} from '../imagelib';
-import {BaseGenerator} from './BaseGenerator';
+import {
+  studio
+} from '../studio';
+import {
+  imagelib
+} from '../imagelib';
+import {
+  BaseGenerator
+} from './BaseGenerator';
 
-const ICON_SIZE = { w: 48, h: 48 };
+const ICON_SIZE = {
+  w: 48,
+  h: 48
+};
 
 const TARGET_RECTS_BY_SHAPE = {
-  none: { x:  3, y:  3, w:  42, h:  42 },
-  circle: { x:  2, y:  2, w:  44, h:  44 },
-  square: { x:  5, y:  5, w:  38, h:  38 },
-  vrect: { x:  8, y:  2, w:  32, h:  44 },
-  hrect: { x:  2, y:  8, w:  44, h:  32 },
+  none: {
+    x: 3,
+    y: 3,
+    w: 42,
+    h: 42
+  },
+  circle: {
+    x: 2,
+    y: 2,
+    w: 44,
+    h: 44
+  },
+  square: {
+    x: 5,
+    y: 5,
+    w: 38,
+    h: 38
+  },
+  vrect: {
+    x: 8,
+    y: 2,
+    w: 32,
+    h: 44
+  },
+  hrect: {
+    x: 2,
+    y: 8,
+    w: 44,
+    h: 32
+  },
 };
 
 const GRID_OVERLAY_SVG =
-    `<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  `<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
         <g fill="none" fill-rule="evenodd">
             <rect vector-effect="non-scaling-stroke" x="8" y="2" width="32" height="44" rx="3"/>
             <rect vector-effect="non-scaling-stroke" x="5" y="5" width="38" height="38" rx="3"/>
@@ -41,23 +75,39 @@ const GRID_OVERLAY_SVG =
     </svg>`;
 
 
-const DEFAULT_EFFECT_OPTIONS = [
-  { id: 'none', title: 'None' },
-  { id: 'elevate', title: 'Elevate' },
-  { id: 'shadow', title: 'Cast shadow' },
-  { id: 'score', title: 'Score' }
+const DEFAULT_EFFECT_OPTIONS = [{
+    id: 'none',
+    title: 'None'
+  },
+  {
+    id: 'elevate',
+    title: 'Elevate'
+  },
+  {
+    id: 'shadow',
+    title: 'Cast shadow'
+  },
+  {
+    id: 'score',
+    title: 'Score'
+  }
 ];
 
 
-const NO_SHAPE_EFFECT_OPTIONS = [
-  { id: 'none', title: 'None' },
-  { id: 'score', title: 'Score' }
+const NO_SHAPE_EFFECT_OPTIONS = [{
+    id: 'none',
+    title: 'None'
+  },
+  {
+    id: 'score',
+    title: 'Score'
+  }
 ];
 
 
 export class LauncherIconGenerator extends BaseGenerator {
   get densities() {
-    return new Set(['xxxhdpi' /* must be first */, 'web', 'xxhdpi', 'xhdpi', 'hdpi', 'mdpi']);
+    return new Set(['xxxhdpi' /* must be first */ , 'web', 'xxhdpi', 'xhdpi', 'hdpi', 'mdpi']);
   }
 
   get gridOverlaySvg() {
@@ -72,7 +122,10 @@ export class LauncherIconGenerator extends BaseGenerator {
       fields: [
         new studio.ImageField('foreground', {
           title: 'Foreground',
-          maxFinalSize: { w: 720, h: 720 }, // max render size, for SVGs
+          maxFinalSize: {
+            w: 720,
+            h: 720
+          }, // max render size, for SVGs
           defaultValueTrim: 1,
           defaultValuePadding: .25,
           defaultValueClipart: 'android',
@@ -89,27 +142,111 @@ export class LauncherIconGenerator extends BaseGenerator {
           title: 'Background color',
           defaultValue: '#448aff'
         })),
+        /*
         new studio.BooleanField('crop', {
           title: 'Scaling',
           defaultValue: false,
           offText: 'Center',
-          onText: 'Crop'
+          onText: 'Bottom'
+        }),
+        */
+        new studio.EnumField('vertical', {
+          title: 'Vertical',
+          options: [{
+              id: 'verticalTop',
+              title: 'Top'
+            },
+            {
+              id: 'verticalCenter',
+              title: 'Center'
+            },
+            {
+              id: 'verticalBottom',
+              title: 'Bottom'
+            }
+          ],
+          defaultValue: 'verticalTop'
+        }), new studio.EnumField('horizontal', {
+          title: 'Horizontal',
+          options: [{
+              id: 'horizontalLeft',
+              title: 'Left'
+            },
+            {
+              id: 'horizontalCenter',
+              title: 'Center'
+            },
+            {
+              id: 'horizontalRight',
+              title: 'Right'
+            }
+          ],
+          defaultValue: 'left'
         }),
         new studio.EnumField('backgroundShape', {
           title: 'Shape',
-          options: [
-            { id: 'none', title: 'None' },
-            { id: 'square', title: 'Square' },
-            { id: 'circle', title: 'Circle' },
-            { id: 'vrect', title: 'Tall rect' },
-            { id: 'hrect', title: 'Wide rect' }
+          options: [{
+              id: 'none',
+              title: 'None'
+            },
+            {
+              id: 'square',
+              title: 'Square'
+            },
+            {
+              id: 'circle',
+              title: 'Circle'
+            },
+            {
+              id: 'vrect',
+              title: 'Tall rect'
+            },
+            {
+              id: 'hrect',
+              title: 'Wide rect'
+            }
           ],
           defaultValue: 'square',
           onChange: newValue => {
             backColorField.setEnabled(newValue != 'none');
-            let newEffectsOptions = newValue == 'none'
-                ? NO_SHAPE_EFFECT_OPTIONS
-                : DEFAULT_EFFECT_OPTIONS;
+            let newEffectsOptions = newValue == 'none' ?
+              NO_SHAPE_EFFECT_OPTIONS :
+              DEFAULT_EFFECT_OPTIONS;
+            if (!newEffectsOptions.find(e => e.id == effectsField.getValue())) {
+              effectsField.setValue(newEffectsOptions[0].id);
+            }
+            effectsField.setOptions(newEffectsOptions);
+          }
+        }),
+        new studio.EnumField('backgroundShape', {
+          title: 'Shape',
+          options: [{
+              id: 'none',
+              title: 'None'
+            },
+            {
+              id: 'square',
+              title: 'Square'
+            },
+            {
+              id: 'circle',
+              title: 'Circle'
+            },
+            {
+              id: 'vrect',
+              title: 'Tall rect'
+            },
+            {
+              id: 'hrect',
+              title: 'Wide rect'
+            }
+          ],
+          defaultValue: 'square',
+          onChange: newValue => {
+            backColorField.setEnabled(newValue != 'none');
+            let newEffectsOptions = newValue == 'none' ?
+              NO_SHAPE_EFFECT_OPTIONS :
+              DEFAULT_EFFECT_OPTIONS;
             if (!newEffectsOptions.find(e => e.id == effectsField.getValue())) {
               effectsField.setValue(newEffectsOptions[0].id);
             }
@@ -122,10 +259,10 @@ export class LauncherIconGenerator extends BaseGenerator {
           options: DEFAULT_EFFECT_OPTIONS,
           defaultValue: 'none'
         })),
-        new studio.TextField('name', {
-          title: 'Name',
-          defaultValue: 'ic_launcher'
-        })
+        /* new studio.TextField('name', {
+           title: 'Name',
+           defaultValue: 'ic_launcher'
+         })*/
       ]
     });
     this.form.onChange(field => this.regenerateDebounced_());
@@ -133,9 +270,14 @@ export class LauncherIconGenerator extends BaseGenerator {
 
   regenerate() {
     let values = this.form.getValues();
+    //let imagefiledvalues = ImageField.form.getValues();
+    let font = document.querySelector("#_frm-iconform-foreground-textform-font").firstChild.value;
+    let name = document.querySelector("#form-field-text").value;
+
+
 
     this.zipper.clear();
-    this.zipper.setZipFilename(`${values.name}.zip`);
+    this.zipper.setZipFilename(`${name}-font-${font}-fontColor-${values.foreColor}-backgroundColor-${values.backColor}.zip`);
 
     let xxxhdpiCtx = null;
 
@@ -152,15 +294,14 @@ export class LauncherIconGenerator extends BaseGenerator {
         let iconSize = studio.Util.multRound(ICON_SIZE, mult);
         ctx = imagelib.Drawing.context(iconSize);
         imagelib.Drawing.drawImageScaled(
-            ctx, xxxhdpiCtx,
-            0, 0, 192, 192,
-            0, 0, iconSize.w, iconSize.h);
+          ctx, xxxhdpiCtx,
+          0, 0, 192, 192,
+          0, 0, iconSize.w, iconSize.h);
       }
 
       this.zipper.add({
-        name: (density == 'web')
-            ? 'web_hi_res_512.png'
-            : `res/mipmap-${density}/${values.name}.png`,
+        name: (density == 'web') ?
+          'web_hi_res_512.png' : `res/mipmap-${density}/${values.name}.png`,
         canvas: ctx.canvas
       });
 
@@ -181,7 +322,12 @@ export class LauncherIconGenerator extends BaseGenerator {
 
     let outCtx = imagelib.Drawing.context(iconSize);
 
-    let roundRectPath_ = (ctx, {x, y, w, h}, r) => {
+    let roundRectPath_ = (ctx, {
+      x,
+      y,
+      w,
+      h
+    }, r) => {
       ctx.beginPath();
       ctx.moveTo(x + w - r, y);
       ctx.arcTo(x + w, y, x + w, y + r, r);
@@ -213,10 +359,10 @@ export class LauncherIconGenerator extends BaseGenerator {
           case 'circle':
             ctx.beginPath();
             ctx.arc(
-                targetRect.x + targetRect.w / 2,
-                targetRect.y + targetRect.h / 2,
-                targetRect.w / 2,
-                0, 2 * Math.PI, false);
+              targetRect.x + targetRect.w / 2,
+              targetRect.y + targetRect.h / 2,
+              targetRect.w / 2,
+              0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.fill();
             break;
@@ -232,16 +378,25 @@ export class LauncherIconGenerator extends BaseGenerator {
           return;
         }
 
-        let drawFn_ = imagelib.Drawing[values.crop ? 'drawCenterCrop' : 'drawCenterInside'];
-        drawFn_(ctx, foreSrcCtx, studio.Util.mult(targetRect, mult),
-            {x: 0, y: 0, w: foreSrcCtx.canvas.width, h: foreSrcCtx.canvas.height});
+        //  let drawFn_ = imagelib.Drawing[values.crop ? 'drawVerticalTop' : 'drawVerticalCenter'];
+        //let drawFn_ = imagelib.Drawing[values.crop ? 'verticalCenter' : 'verticalTop'];
+        console.log("values.vertical: " + values.vertical);
+        let drawFn_ = imagelib.Drawing[values.vertical];
+        drawFn_(ctx, foreSrcCtx, studio.Util.mult(targetRect, mult), {
+          x: 0,
+          y: 0,
+          w: foreSrcCtx.canvas.width,
+          h: foreSrcCtx.canvas.height
+        });
       },
       effects: [],
       mask: !!(values.backgroundShape == 'none')
     };
 
-    if (values.backgroundShape != 'none' &&values.effects == 'shadow') {
-      foregroundLayer.effects.push({effect: 'cast-shadow'});
+    if (values.backgroundShape != 'none' && values.effects == 'shadow') {
+      foregroundLayer.effects.push({
+        effect: 'cast-shadow'
+      });
     }
 
     if (values.foreColor.getAlpha()) {
@@ -252,9 +407,8 @@ export class LauncherIconGenerator extends BaseGenerator {
     }
 
     if (values.backgroundShape != 'none' &&
-        (values.effects == 'elevate' || values.effects == 'shadow')) {
-      foregroundLayer.effects = foregroundLayer.effects.concat([
-        {
+      (values.effects == 'elevate' || values.effects == 'shadow')) {
+      foregroundLayer.effects = foregroundLayer.effects.concat([{
           effect: 'outer-shadow',
           color: 'rgba(0, 0, 0, 0.2)',
           translateY: .25 * mult
@@ -281,8 +435,7 @@ export class LauncherIconGenerator extends BaseGenerator {
         foregroundLayer,
         values.effects == 'score' ? scoreLayer : null,
       ],
-      effects: [
-        {
+      effects: [{
           effect: 'inner-shadow',
           color: 'rgba(255, 255, 255, 0.2)',
           translateY: .25 * mult
@@ -297,9 +450,14 @@ export class LauncherIconGenerator extends BaseGenerator {
           centerX: 0,
           centerY: 0,
           radius: iconSize.w,
-          colors: [
-            { offset: 0, color: 'rgba(255,255,255,.1)' },
-            { offset: 1.0, color: 'rgba(255,255,255,0)' }
+          colors: [{
+              offset: 0,
+              color: 'rgba(255,255,255,.1)'
+            },
+            {
+              offset: 1.0,
+              color: 'rgba(255,255,255,0)'
+            }
           ]
         },
         {

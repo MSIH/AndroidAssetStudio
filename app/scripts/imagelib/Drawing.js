@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-import {default as tinycolor} from 'tinycolor2';
+import {
+  default as tinycolor
+} from 'tinycolor2';
 
-import {Effects} from './Effects';
+
+
+import {
+  Effects
+} from './Effects';
 
 export const Drawing = {};
 
-Drawing.context = function(size) {
+Drawing.context = function (size) {
   var canvas = document.createElement('canvas');
   canvas.width = size.w;
   canvas.height = size.h;
@@ -28,43 +34,62 @@ Drawing.context = function(size) {
   return canvas.getContext('2d');
 };
 
-Drawing.drawCenterInside = function(dstCtx, src, dstRect, srcRect) {
+Drawing.verticalCenter = function (dstCtx, src, dstRect, srcRect) { //center
   if (srcRect.w / srcRect.h > dstRect.w / dstRect.h) {
     var h = srcRect.h * dstRect.w / srcRect.w;
-     Drawing.drawImageScaled(dstCtx, src,
-        srcRect.x, srcRect.y,
-        srcRect.w, srcRect.h,
-        dstRect.x, dstRect.y + (dstRect.h - h) / 2,
-        dstRect.w, h);
+    Drawing.drawImageScaled(dstCtx, src,
+      srcRect.x, srcRect.y,
+      srcRect.w, srcRect.h,
+      dstRect.x, dstRect.y + (dstRect.h - h) / 2,
+      dstRect.w, h);
   } else {
     var w = srcRect.w * dstRect.h / srcRect.h;
-     Drawing.drawImageScaled(dstCtx, src,
-        srcRect.x, srcRect.y,
-        srcRect.w, srcRect.h,
-        dstRect.x + (dstRect.w - w) / 2, dstRect.y,
-        w, dstRect.h);
+    Drawing.drawImageScaled(dstCtx, src,
+      srcRect.x, srcRect.y,
+      srcRect.w, srcRect.h,
+      dstRect.x + (dstRect.w - w) / 2, dstRect.y,
+      w, dstRect.h);
   }
 };
 
-Drawing.drawCenterCrop = function(dstCtx, src, dstRect, srcRect) {
+Drawing.verticalTop = function (dstCtx, src, dstRect, srcRect) { //top
   if (srcRect.w / srcRect.h > dstRect.w / dstRect.h) {
-    var w = srcRect.h * dstRect.w / dstRect.h;
+    var h = srcRect.h * dstRect.w / srcRect.w;
     Drawing.drawImageScaled(dstCtx, src,
-        srcRect.x + (srcRect.w - w) / 2, srcRect.y,
-        w, srcRect.h,
-        dstRect.x, dstRect.y,
-        dstRect.w, dstRect.h);
+      srcRect.x, srcRect.y,
+      srcRect.w, srcRect.h,
+      dstRect.x, dstRect.y,
+      dstRect.w, h);
   } else {
-    var h = srcRect.w * dstRect.h / dstRect.w;
+    var w = srcRect.w * dstRect.h / srcRect.h;
     Drawing.drawImageScaled(dstCtx, src,
-        srcRect.x, srcRect.y + (srcRect.h - h) / 2,
-        srcRect.w, h,
-        dstRect.x, dstRect.y,
-        dstRect.w, dstRect.h);
+      srcRect.x, srcRect.y,
+      srcRect.w, srcRect.h,
+      dstRect.x + (dstRect.w - w) / 2, dstRect.y,
+      w, dstRect.h);
   }
 };
 
-Drawing.drawImageScaled = function(dstCtx, src, sx, sy, sw, sh, dx, dy, dw, dh) {
+Drawing.verticalBottom = function (dstCtx, src, dstRect, srcRect) { //bottom
+  if (srcRect.w / srcRect.h > dstRect.w / dstRect.h) {
+    var h = srcRect.h * dstRect.w / srcRect.w;
+    Drawing.drawImageScaled(dstCtx, src,
+      srcRect.x, srcRect.y,
+      srcRect.w, srcRect.h,
+      dstRect.x, dstRect.y + (dstRect.h - h),
+      dstRect.w, h);
+  } else {
+    var w = srcRect.w * dstRect.h / srcRect.h;
+    Drawing.drawImageScaled(dstCtx, src,
+      srcRect.x, srcRect.y,
+      srcRect.w, srcRect.h,
+      dstRect.x + (dstRect.w - w) / 2, dstRect.y,
+      w, dstRect.h);
+  }
+};
+
+
+Drawing.drawImageScaled = function (dstCtx, src, sx, sy, sw, sh, dx, dy, dw, dh) {
   if (dw <= 0 || dh <= 0 || sw <= 0 || sh <= 0) {
     console.error('Width/height must be at least 0');
     return;
@@ -77,7 +102,10 @@ Drawing.drawImageScaled = function(dstCtx, src, sx, sy, sw, sh, dx, dy, dw, dh) 
   while (dw < sw / 2 || dh < sh / 2) {
     let tmpDw = Math.ceil(Math.max(dw, sw / 2));
     let tmpDh = Math.ceil(Math.max(dh, sh / 2));
-    let tmpCtx = Drawing.context({ w: tmpDw, h: tmpDh });
+    let tmpCtx = Drawing.context({
+      w: tmpDw,
+      h: tmpDh
+    });
 
     tmpCtx.clearRect(0, 0, tmpDw, tmpDh);
     tmpCtx.drawImage(src, sx, sy, sw, sh, 0, 0, tmpDw, tmpDh);
@@ -91,7 +119,7 @@ Drawing.drawImageScaled = function(dstCtx, src, sx, sy, sw, sh, dx, dy, dw, dh) 
   dstCtx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
 };
 
-Drawing.drawLayers = function(dstCtx, size, layerTree) {
+Drawing.drawLayers = function (dstCtx, size, layerTree) {
   drawLayer_(dstCtx, layerTree);
 
   function drawLayer_(dstCtx, layer) {

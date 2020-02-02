@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-import {default as zipjs} from 'zipjs-browserify';
+import {
+  default as zipjs
+} from 'zipjs-browserify';
 
-import {Util} from './Util';
+import {
+  Util
+} from './Util';
 
 const URL = window.URL || window.webkitURL || window.mozURL;
 
@@ -81,11 +85,11 @@ class DownloadZipButton {
           // add next file
           let fileSpec = this.fileSpecs_[i];
           writer.add(
-              fileSpec.name,
-              fileSpec.canvas
-                  ? new zipjs.Data64URIReader(fileSpec.canvas.toDataURL())
-                  : new zipjs.TextReader(fileSpec.textData),
-              nextFile_);
+            fileSpec.name,
+            fileSpec.canvas ?
+            new zipjs.Data64URIReader(fileSpec.canvas.toDataURL()) :
+            new zipjs.TextReader(fileSpec.textData),
+            nextFile_);
         }
       };
       nextFile_();
